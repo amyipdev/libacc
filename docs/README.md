@@ -11,4 +11,8 @@ You can find the maitainers in the [MAINTAINERS list](https://github.com/amyipde
 
 For information on how to write commits, how to protect
 your forks/branches, and the code style we use, see
+<<<<<<< HEAD
 the [STYLE guide](https://github.com/amyipdev/libacc/blob/main/docs/STYLE.md)
+=======
+the [STYLE guide](https://github.com/amyipdev/libacc/blob/main/docs/STYLE.md).
+>>>>>>> 95401be (docs: establish basic documentation)
