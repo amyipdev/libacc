@@ -39,8 +39,7 @@ fn generate_random_bytes<R: Rng>(rng: &mut R, count: u32, exclusion: char) -> Ve
 /// # Returns
 /// The encapsulated packet in Vec<u8> form.
 /// # Errors
-/// Returns an error if the BSON packet is not valid (it does not start and end with the correct braces) or
-/// if there is an error during the generation of random bytes or packet encapsulation
+/// Returns an error if there is an error during the generation of random bytes or packet encapsulation
 fn encapsulate(pkt: &[u8]) -> Vec<u8> {
     let mut rng = rand::thread_rng(); // use the random number generator to generate our random numbers and bytes
     let r1 = rng.gen_range(2..=32); // length of random bytes before the BSON data
@@ -68,7 +67,7 @@ fn encapsulate(pkt: &[u8]) -> Vec<u8> {
 /// # Returns
 /// The revealed BSON in Vec<u8> form if successful.
 /// # Errors
-/// Returns an error if the BSON packet is not valid (it does not start and end with the correct braces) or
+/// Returns an error if the padding is not valid (does not have the correct braces) or
 /// if there is an error during the extraction of BSON data.
 fn reveal(pkt: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     let pkt_vec = pkt.to_vec();
@@ -80,7 +79,7 @@ fn reveal(pkt: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     // loop through the packet and find the index of the beginning of the BSON data.
     for (index, &element) in pkt_vec.iter().take(33).enumerate() {
         if element == b'{' {
-            // if the brace is not within 2-32 (inclusive) bytes, the packet is not valid
+            // if the brace is not within 2-32 (inclusive) bytes, the padding is not valid
             if index < 2 || index > 32 {
                 return Err(Error::from(ErrorKind::InvalidData));
             } else {
