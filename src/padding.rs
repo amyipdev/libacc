@@ -62,10 +62,10 @@ fn reveal(pkt: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     let mut bson_back_index = -1;
 
     // loop through the packet and find the index of the beginning of the BSON data.
-    for (index, &element) in pkt.iter().enumerate().take(33) {
+    for (index, &element) in pkt.iter().enumerate().take(MAX_BYTES_PADDING + 1) {
         if element == b'{' {
-            // if the brace is not within 2-32 (inclusive) bytes, the padding is not valid
-            if index < 2 || index > 32 {
+            // if the opening brace is not within the minimum and maximum bytes of padding, the padding is not valid
+            if index < MIN_BYTES_PADDING || index > MAX_BYTES_PADDING {
                 return Err(Error::from(ErrorKind::InvalidData));
             } else {
                 bson_front_index = (index + 1) as i32; // store the index of the bracket for later use
@@ -80,9 +80,10 @@ fn reveal(pkt: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     }
 
     // loop through the packet backwards to find the end of the BSON data
-    for (rev_index, &element) in pkt.iter().rev().enumerate().take(33) {
+    for (rev_index, &element) in pkt.iter().rev().enumerate().take(MAX_BYTES_PADDING + 1) {
         if element == b'}' {
-            if rev_index < 2 || rev_index > 32 {
+            // if the closing brace is not within the minimum and maximum bytes of padding, the padding is not valid
+            if rev_index < MIN_BYTES_PADDING || rev_index > MAX_BYTES_PADDING {
                 return Err(Error::from(ErrorKind::InvalidData));
             } else {
                 let index = pkt.len() - 1 - rev_index; // since the index is now reversed, we have to turn it back into the normal index for future use
