@@ -33,7 +33,17 @@ fn encapsulate(acc_struct: PacketVersion) -> Result<Vec<u8>, std::io::Error> {
 }
 
 fn reveal(bson_doc: Vec<u8>) -> Result<PacketVersion, std::io::Error> {
-    //let bson_data: Bson = bson::from_slice(&bson_doc[..]).unwrap();
-    //if()
-    unimplemented!()
+    let bson_data: Bson = bson::from_slice(&bson_doc[..]).unwrap();
+    dbg!(&bson_data);
+    let bson_ver = bson::from_slice(&bson_doc[4..10]).unwrap();
+    let version: u32 = bson::from_bson(bson_ver).unwrap();
+    dbg!(version);
+    let pkt: Result<PacketVersion, Error> = match version {
+        1 => Ok(PacketVersion::V1(bson::from_bson::<AccVersion1>(bson_data).unwrap())),
+
+        //i guess we would try the latest version when v: 0?
+        0 => Ok(PacketVersion::V1(bson::from_bson::<AccVersion1>(bson_data).unwrap())),
+        _ => Err(Error::from(ErrorKind::InvalidData)),
+    };
+    pkt
 }
