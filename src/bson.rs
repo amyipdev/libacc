@@ -3,10 +3,10 @@
 // Because BSON depends on the protocol version,
 // need to develop an Enum<Struct, Struct, ...> to
 // work based on the protocol version.
-use bson::{bson, Binary, Bson, Document};
 use bson::spec::BinarySubtype;
-use serde::{Deserialize};
-use serde::ser::{Serialize, Serializer, SerializeStruct};
+use bson::{bson, Binary, Bson, Document};
+use serde::ser::{Serialize, SerializeStruct, Serializer};
+use serde::Deserialize;
 use std::io::{Error, ErrorKind};
 
 #[derive(Deserialize, PartialEq, Debug)]
@@ -17,21 +17,24 @@ struct AccVersion1 {
 }
 impl AccVersion1 {
     fn new(data: Vec<u8>) -> AccVersion1 {
-        AccVersion1 { 
-            v: 1, 
-            d: bson::Binary{subtype: bson::spec::BinarySubtype::Generic,
-            bytes: data}
-        } 
+        AccVersion1 {
+            v: 1,
+            d: bson::Binary {
+                subtype: bson::spec::BinarySubtype::Generic,
+                bytes: data,
+            },
+        }
     }
 }
 impl Serialize for AccVersion1 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer {
-                let mut state = serializer.serialize_struct("AccVersion1", 2)?;
-                state.serialize_field("v", &self.v)?;
-                state.serialize_field("d", &self.d)?;
-                state.end()
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("AccVersion1", 2)?;
+        state.serialize_field("v", &self.v)?;
+        state.serialize_field("d", &self.d)?;
+        state.end()
     }
 }
 #[derive(PartialEq, Debug)]
@@ -54,11 +57,11 @@ fn reveal(bson_vec: Vec<u8>) -> Result<PacketVersion, std::io::Error> {
         Ok(1) => {
             let acc_struct: AccVersion1 = bson::from_document(doc).unwrap();
             PacketVersion::V1(acc_struct)
-        },
+        }
         Ok(0) => {
             let acc_struct: AccVersion1 = bson::from_document(doc).unwrap();
             PacketVersion::V1(acc_struct)
-        },
+        }
         Ok(_) => return Err(Error::from(ErrorKind::Unsupported)),
         Err(error) => panic!("Error: {}", error),
     };
@@ -72,7 +75,9 @@ mod tests {
 
     #[test]
     fn bson_test() {
-        let pkt = PacketVersion::V1(AccVersion1::new(b"somebody once told me the world was gonna roll me".to_vec()));
+        let pkt = PacketVersion::V1(AccVersion1::new(
+            b"somebody once told me the world was gonna roll me".to_vec(),
+        ));
         let result = reveal(encapsulate(&pkt).unwrap()).unwrap();
         assert_eq!(pkt, result)
     }
