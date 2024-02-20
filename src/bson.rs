@@ -3,47 +3,57 @@
 // Because BSON depends on the protocol version,
 // need to develop an Enum<Struct, Struct, ...> to
 // work based on the protocol version.
-use bson::{bson, Bson};
-use serde::{Deserialize, Serialize};
+use bson::{bson, Binary, Bson};
+use bson::spec::BinarySubtype;
+use serde::{Deserialize};
+use serde::ser::{Serialize, Serializer, SerializeStruct};
 use std::io::{Error, ErrorKind};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 struct AccVersion1 {
-    v: u32,
+    v: i32,
     //other stuff
-    d: Vec<u8>,
+    d: bson::Binary,
 }
 impl AccVersion1 {
-    fn new(d: &Vec<u8>) -> AccVersion1 {
+    fn new(d: bson::Binary) -> AccVersion1 {
         AccVersion1 { v: 1, d: d.clone() }
     }
 }
-
+impl Serialize for AccVersion1 {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer {
+                let mut state = serializer.serialize_struct("AccVersion1", 2)?;
+                state.serialize_field("v", &self.v)?;
+                state.serialize_field("d", &self.d)?;
+                state.end()
+    }
+}
 enum PacketVersion {
     V1(AccVersion1),
 }
 
 fn encapsulate(acc_struct: PacketVersion) -> Result<Vec<u8>, std::io::Error> {
-    let pkt = match acc_struct {
-        PacketVersion::V1(pkt) => pkt,
-        _ => return Err(Error::from(ErrorKind::Unsupported)),
-    };
-    let bson_vec = bson::to_vec(&pkt).unwrap();
-    Ok(bson_vec)
+    unimplemented!()
 }
 
 fn reveal(bson_doc: Vec<u8>) -> Result<PacketVersion, std::io::Error> {
-    let bson_data: Bson = bson::from_slice(&bson_doc[..]).unwrap();
-    dbg!(&bson_data);
-    let bson_ver = bson::from_slice(&bson_doc[4..10]).unwrap();
-    let version: u32 = bson::from_bson(bson_ver).unwrap();
-    dbg!(version);
-    let pkt: Result<PacketVersion, Error> = match version {
-        1 => Ok(PacketVersion::V1(bson::from_bson::<AccVersion1>(bson_data).unwrap())),
+    unimplemented!()
+}
 
-        //i guess we would try the latest version when v: 0?
-        0 => Ok(PacketVersion::V1(bson::from_bson::<AccVersion1>(bson_data).unwrap())),
-        _ => Err(Error::from(ErrorKind::InvalidData)),
-    };
-    pkt
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bson::{doc, spec::BinarySubtype};
+
+    #[test]
+    fn bson_test() {
+        let pkt = AccVersion1::new(bson::Binary {
+            subtype: bson::spec::BinarySubtype::Generic,
+            bytes: b"somebody once told me".to_vec(),
+        });
+        let bson = bson::to_vec(&pkt);
+        print!("{:x?}", bson);
+    }
 }
