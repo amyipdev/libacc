@@ -1,15 +1,11 @@
-// No definitions yet.
-// Need to define the encapsulate and reveal functions.
-// Because BSON depends on the protocol version,
-// need to develop an Enum<Struct, Struct, ...> to
-// work based on the protocol version.
-use bson::spec::BinarySubtype;
-use bson::{bson, Binary, Bson, Document};
-use serde::ser::{Serialize, SerializeStruct, Serializer};
-use serde::Deserialize;
 use std::io::{Error, ErrorKind};
 
-#[derive(Deserialize, PartialEq, Debug)]
+use bson::spec::BinarySubtype;
+use bson::{bson, Binary, Bson, Document};
+use serde::ser::{SerializeStruct, Serializer};
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct AccVersion1 {
     v: i32,
     //other stuff
@@ -25,7 +21,7 @@ impl AccVersion1 {
             },
         }
     }
-}
+}/*
 impl Serialize for AccVersion1 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -36,7 +32,7 @@ impl Serialize for AccVersion1 {
         state.serialize_field("d", &self.d)?;
         state.end()
     }
-}
+}*/
 #[derive(PartialEq, Debug)]
 enum PacketVersion {
     V1(AccVersion1),
@@ -51,7 +47,7 @@ fn encapsulate(acc_enum: &PacketVersion) -> Result<Vec<u8>, std::io::Error> {
 }
 
 fn reveal(bson_vec: Vec<u8>) -> Result<PacketVersion, std::io::Error> {
-    let doc: Document = bson::from_slice(&bson_vec[..]).unwrap();
+    let doc: Document = bson::from_slice(&bson_vec).unwrap();
     let version = doc.get_i32("v");
     let result = match version {
         Ok(1) => {
