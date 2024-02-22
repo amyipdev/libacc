@@ -7,7 +7,8 @@ use serde::{Serialize, Deserialize};
 pub struct AccVersion1 {
     v: i32,
     //other stuff
-    d: bson::Binary,
+    // TODO: evaluate switching this to a getter instead of a pub
+    pub d: bson::Binary,
 }
 impl AccVersion1 {
     pub fn new(data: &[u8]) -> AccVersion1 {
@@ -43,8 +44,8 @@ pub(crate) fn encapsulate(acc_enum: &PacketVersion) -> Result<Vec<u8>, std::io::
     Ok(bson::to_vec(&acc_struct).unwrap())
 }
 
-fn reveal(bson_vec: Vec<u8>) -> Result<PacketVersion, std::io::Error> {
-    let doc: Document = bson::from_slice(&bson_vec).unwrap();
+pub(crate) fn reveal(bson_vec: &[u8]) -> Result<PacketVersion, std::io::Error> {
+    let doc: Document = bson::from_slice(bson_vec).unwrap();
     let version = doc.get_i32("v");
     let result = match version {
         Ok(0) | Ok(1) => {
@@ -60,14 +61,13 @@ fn reveal(bson_vec: Vec<u8>) -> Result<PacketVersion, std::io::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bson::{doc, spec::BinarySubtype, Document};
 
     #[test]
     fn bson_test() {
         let pkt = PacketVersion::V1(AccVersion1::new(
-            b"somebody once told me the world was gonna roll me".to_vec(),
+            b"somebody once told me the world was gonna roll me",
         ));
-        let result = reveal(encapsulate(&pkt).unwrap()).unwrap();
+        let result = reveal(&encapsulate(&pkt).unwrap()).unwrap();
         assert_eq!(pkt, result)
     }
 }

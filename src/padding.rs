@@ -56,7 +56,7 @@ pub(crate) fn encapsulate(pkt: &[u8]) -> Vec<u8> {
 /// # Errors
 /// Returns an error if the padding is not valid (does not have the correct braces) or
 /// if there is an error during the extraction of BSON data.
-fn reveal(pkt: &[u8]) -> Result<Vec<u8>, std::io::Error> {
+pub(crate) fn reveal(pkt: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     // initialize bson_front_index & bson_back_index with a default of -1 to indicate they hasn't been changed
     let mut bson_front_index: i32 = -1;
     let mut bson_back_index = -1;
