@@ -1,6 +1,8 @@
 # libacc
 
-Library for the ACC protocol (README TBD)
+This is an early development version of the official ACC protocol library.
+We can't promise that it works perfectly yet - but this is the base for the 
+ongoing work on the ACC client implementation.
 
 ## Contributing
 

@@ -1,7 +1,12 @@
 [package]
 name = "libacc"
+authors = ["Amy Parker <amy@amyip.net>", "Kevin Liu <kevin.liu@csu.fullerton.edu>", "Owen de Vita <owend1117@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.72.0"
+description = "Library for the ACC protocol"
+repository = "https://github.com/amyipdev/libacc"
+license = "GPL-2.0-or-later"
 
 [dependencies]
 aes-gcm-siv = "0.11.1"

@@ -29,7 +29,7 @@ pub(crate) fn encapsulate(pkt: &[u8], key: &[u8]) -> Result<Vec<u8>, std::io::Er
 /// Attempts to decrypt AES with a given key.
 /// If this fails, returns Err.
 /// On success, returns Ok(Vec<u8>) containing the packet.
-fn reveal(pkt: &[u8], key: &[u8]) -> Result<Vec<u8>, std::io::Error> {
+pub(crate) fn reveal(pkt: &[u8], key: &[u8]) -> Result<Vec<u8>, std::io::Error> {
     if key.len() != 32 {
         return Err(Error::from(ErrorKind::InvalidInput));
     }
@@ -47,6 +47,7 @@ fn reveal(pkt: &[u8], key: &[u8]) -> Result<Vec<u8>, std::io::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use aes_gcm_siv::aead::OsRng;
 
     #[test]
     fn enc_rev_pkts_aes256_single_rand() {
