@@ -1,7 +1,7 @@
 use std::io::{Error, ErrorKind};
 
 use aes_gcm_siv::{
-    aead::{Aead, OsRng},
+    aead::Aead,
     Aes256GcmSiv, KeyInit, Nonce,
 };
 use rand::RngCore;

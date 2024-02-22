@@ -1,8 +1,6 @@
 use std::io::{Error, ErrorKind};
 
-use bson::spec::BinarySubtype;
-use bson::{bson, Binary, Bson, Document};
-use serde::ser::{SerializeStruct, Serializer};
+use bson::Document;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]

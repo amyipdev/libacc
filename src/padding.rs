@@ -40,7 +40,7 @@ fn encapsulate(pkt: &[u8]) -> Vec<u8> {
     back_pad.insert(0, '}' as u8);
 
     // define a new vector to add the front pad, the packet, and finally the back pad
-    let mut encapsulated_pkt = Vec::with_capacity((pkt.len() + front_pad.len() + back_pad.len()));
+    let mut encapsulated_pkt = Vec::with_capacity(pkt.len() + front_pad.len() + back_pad.len());
     encapsulated_pkt.extend(front_pad);
     encapsulated_pkt.extend(pkt);
     encapsulated_pkt.extend(back_pad);
