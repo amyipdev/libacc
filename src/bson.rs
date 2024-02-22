@@ -4,18 +4,18 @@ use bson::Document;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-struct AccVersion1 {
+pub struct AccVersion1 {
     v: i32,
     //other stuff
     d: bson::Binary,
 }
 impl AccVersion1 {
-    fn new(data: Vec<u8>) -> AccVersion1 {
+    pub fn new(data: &[u8]) -> AccVersion1 {
         AccVersion1 {
             v: 1,
             d: bson::Binary {
                 subtype: bson::spec::BinarySubtype::Generic,
-                bytes: data,
+                bytes: Vec::from(data),
             },
         }
     }
@@ -32,14 +32,13 @@ impl Serialize for AccVersion1 {
     }
 }*/
 #[derive(PartialEq, Debug)]
-enum PacketVersion {
+pub enum PacketVersion {
     V1(AccVersion1),
 }
 
-fn encapsulate(acc_enum: &PacketVersion) -> Result<Vec<u8>, std::io::Error> {
+pub(crate) fn encapsulate(acc_enum: &PacketVersion) -> Result<Vec<u8>, std::io::Error> {
     let acc_struct = match acc_enum {
         PacketVersion::V1(structure) => structure,
-        _ => return Err(Error::from(ErrorKind::InvalidData)),
     };
     Ok(bson::to_vec(&acc_struct).unwrap())
 }
@@ -48,11 +47,7 @@ fn reveal(bson_vec: Vec<u8>) -> Result<PacketVersion, std::io::Error> {
     let doc: Document = bson::from_slice(&bson_vec).unwrap();
     let version = doc.get_i32("v");
     let result = match version {
-        Ok(1) => {
-            let acc_struct: AccVersion1 = bson::from_document(doc).unwrap();
-            PacketVersion::V1(acc_struct)
-        }
-        Ok(0) => {
+        Ok(0) | Ok(1) => {
             let acc_struct: AccVersion1 = bson::from_document(doc).unwrap();
             PacketVersion::V1(acc_struct)
         }

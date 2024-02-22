@@ -11,7 +11,7 @@ const MAX_BYTES_PADDING: usize = 32;
 /// The encapsulated packet in Vec<u8> form.
 /// # Errors
 /// Returns an error if there is an error during the generation of random bytes or packet encapsulation
-fn encapsulate(pkt: &[u8]) -> Vec<u8> {
+pub(crate) fn encapsulate(pkt: &[u8]) -> Vec<u8> {
     let mut rng = rand::thread_rng(); // use the random number generator to generate our random numbers and bytes
     let r1 = rng.gen_range(MIN_BYTES_PADDING..=MAX_BYTES_PADDING); // length of random bytes before the BSON data
     let r2 = rng.gen_range(MIN_BYTES_PADDING..=MAX_BYTES_PADDING); // length of random bytes after the BSON data
